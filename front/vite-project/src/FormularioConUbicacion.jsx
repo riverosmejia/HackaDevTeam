@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function FormularioConUbicacion() {
   const [nombre, setNombre] = useState('');
@@ -38,6 +39,20 @@ function FormularioConUbicacion() {
       descripcion,
       ubicacion: ubicacionLink,
     };
+
+    // Aquí puedes enviar formData a tu API
+    axios.post('http://localhost:3000/products/register', formData,{
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
     console.log('Datos del formulario:', formData);
     // Aquí podrías realizar la llamada a tu API
   };
