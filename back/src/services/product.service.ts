@@ -1,9 +1,15 @@
+import { prototype } from "events";
+
 interface Product {
-  id: string;
   name: string;
-  type: string;
+  category: string;
   description: string;
   location: string;
+}
+
+interface prototype {
+  a: number;
+  b: number;
 }
 
 const products: Product[] = [];
@@ -11,14 +17,13 @@ const products: Product[] = [];
 // Servicio que "crea" el producto (puedes integrar esto con tu base de datos)
 export const createProduct = (
   name: string,
-  type: string,
+  category: string,
   description: string,
   location: string
 ): Product => {
   const newProduct: Product = {
-    id: Math.random().toString(36).substr(2, 9),
     name,
-    type,
+    category,
     description,
     location,
   };
@@ -29,3 +34,12 @@ export const createProduct = (
 };
 
 export const getAllProducts = (): Product[] => products;
+
+export const getProductidadress = (a: number, b: number) => {
+  const proto: prototype = {
+    a,
+    b,
+  };
+
+  return proto;
+};
