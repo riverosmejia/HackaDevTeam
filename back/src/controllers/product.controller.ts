@@ -1,44 +1,67 @@
 import { Request, Response } from "express";
-import { createProduct, getAllProducts } from "../services/product.service";
-import QRCode from "qrcode"; // Importamos la librería para generar el QR
+import Web3 from "web3";
+import {
+  createProduct,
+  getAllProducts,
+  getProductidadress,
+} from "../services/product.service";
 
-export const registerProduct = (req: Request, res: Response) => {
+// Tu URL RPC de Avalanche
+const rpcUrl =
+  "https://scaling-space-goggles-7v7776x5vj4j2x7rw-39719.app.github.dev/ext/bc/2HbaAyQ3bpFiaE35RyChQo6maehMxMFGooTb7rbMeyKFJySsZc/rpc";
+const web3 = new Web3(rpcUrl);
+
+web3.eth
+  .getBlockNumber()
+  .then((block) => console.log("Último bloque en Avalanche:", block))
+  .catch((err) => console.error("Error de conexión:", err));
+
+export const registerProduct = async (req: Request, res: Response) => {
   // Recibimos los datos en formato JSON
-  const { name, type, description, location } = req.body;
+  const { name, category, description, location } = req.body;
 
   // Verificamos que los datos sean correctos
   if (
     !name ||
-    !type ||
+    !category ||
     !description ||
     !location ||
     typeof location !== "string"
   ) {
-    res
-      .status(400)
-      .json({ message: "Nombre, tipo, descripción y ubicación requeridos." });
+    res.status(400).json({
+      message: "Nombre, categoría, descripción y ubicación requeridos.",
+    });
   }
 
-  // Imprimimos la información recibida en la consola
-  console.log("Producto recibido:", { name, type, description, location });
+  try {
+    // Imprimimos la información recibida en la consola
+    console.log("Producto recibido:", {
+      name,
+      category,
+      description,
+      location,
+    });
 
-  // Creamos el producto (esto puede ser cualquier lógica que tengas en tu servicio)
-  const product = createProduct(name, type, description, location);
+    const result = await createProduct(name, category, description, location);
 
-  // Creamos la cadena con los datos del producto para generar el QR
-  const productData = `Nombre: ${name}\nTipo: ${type}\nDescripción: ${description}\nUbicación: ${location}`;
-
-  // Generamos el código QR con los datos del producto
-  QRCode.toDataURL(productData, (err, url) => {
-    if (err) {
-      res.status(500).json({ message: "Error generando el QR", error: err });
-    }
-
-    // Respondemos con el producto creado y el código QR generado
-    res.status(201).json({ product, qrCode: url });
-  });
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Error al crear el producto", error: err });
+  }
 };
 export const getProducts = (req: Request, res: Response) => {
   const all = getAllProducts();
   res.json(all);
+};
+
+export const getProduct = (req: Request, res: Response) => {
+  const { id } = req.body;
+
+  if (typeof id !== "string") {
+    res.status(400).json({ error: "Both a and b must be strings" });
+  }
+
+  const result = getProductidadress(id);
+
+  res.json({ result });
 };
