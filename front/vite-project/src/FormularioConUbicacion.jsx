@@ -34,16 +34,18 @@ function FormularioConUbicacion() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = {
-      nombre,
-      categoria,
-      descripcion,
-      ubicacion: ubicacionLink,
+      name:nombre,
+      category:categoria,
+      description:descripcion,
+      location: ubicacionLink,
     };
+
+    console.log(formData);
 
     // Aquí puedes enviar formData a tu API
     axios.post('http://localhost:3000/products/register', formData,{
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'application/json'
       }
     })
     .then(function (response) {
