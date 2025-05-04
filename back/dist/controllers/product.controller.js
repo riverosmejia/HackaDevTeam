@@ -8,24 +8,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProduct = exports.getProducts = exports.registerProduct = void 0;
-const web3_1 = __importDefault(require("web3"));
+const viem_1 = require("viem");
+const accounts_1 = require("viem/accounts");
+const chains_1 = require("viem/chains");
+const env_1 = require("../config/env");
 const product_service_1 = require("../services/product.service");
-// Tu URL RPC de Avalanche
-const rpcUrl = "https://scaling-space-goggles-7v7776x5vj4j2x7rw-39719.app.github.dev/ext/bc/2HbaAyQ3bpFiaE35RyChQo6maehMxMFGooTb7rbMeyKFJySsZc/rpc";
-const web3 = new web3_1.default(rpcUrl);
-web3.eth
-    .getBlockNumber()
-    .then((block) => console.log("Último bloque en Avalanche:", block))
-    .catch((err) => console.error("Error de conexión:", err));
+const rpcUrl = "https://api.avax-test.network/ext/bc/C/rpc";
+const abi = (0, viem_1.parseAbi)([
+    "function storeData(string _name, string _category, string _description, string _location) returns (uint32)",
+    "function getData(uint32 id) view returns (string, string, string, string)",
+]);
+const prkey = "0x831d80f73bf993bf3fca0ff3c07f0a67241cd30b88f34d2b90fbddff2d970b6e";
+const account = (0, accounts_1.privateKeyToAccount)(prkey);
+const publicClient = (0, viem_1.createPublicClient)({
+    chain: chains_1.avalancheFuji,
+    transport: (0, viem_1.http)(rpcUrl),
+});
+const walletClient = (0, viem_1.createWalletClient)({
+    account,
+    chain: chains_1.avalancheFuji,
+    transport: (0, viem_1.http)(rpcUrl),
+});
 const registerProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // Recibimos los datos en formato JSON
     const { name, category, description, location } = req.body;
-    // Verificamos que los datos sean correctos
     if (!name ||
         !category ||
         !description ||
@@ -36,18 +43,33 @@ const registerProduct = (req, res) => __awaiter(void 0, void 0, void 0, function
         });
     }
     try {
-        // Imprimimos la información recibida en la consola
-        console.log("Producto recibido:", {
-            name,
-            category,
-            description,
-            location,
+        const data = (0, viem_1.encodeFunctionData)({
+            abi,
+            functionName: "storeData",
+            args: [name, category, description, location],
         });
-        const result = yield (0, product_service_1.createProduct)(name, category, description, location);
-        res.status(201).json(result);
+        const gasEstimate = yield publicClient.estimateGas({
+            account: account.address,
+            to: env_1.ENV.CONTRACT_ADRESS,
+            data,
+        });
+        const hash = yield walletClient.sendTransaction({
+            to: env_1.ENV.CONTRACT_ADRESS,
+            data,
+            gas: gasEstimate,
+        });
+        const qr = yield (0, product_service_1.createProduct)(name, category, description, location, hash);
+        console.log("Producto registrado en la blockchain, hash:", hash);
+        res.status(201).json({
+            qr: qr,
+        });
     }
     catch (err) {
-        res.status(500).json({ message: "Error al crear el producto", error: err });
+        console.error("Error al registrar el producto:", err);
+        res.status(500).json({
+            message: "Error al registrar el producto en la blockchain",
+            error: err,
+        });
     }
 });
 exports.registerProduct = registerProduct;
@@ -59,7 +81,7 @@ exports.getProducts = getProducts;
 const getProduct = (req, res) => {
     const { id } = req.body;
     if (typeof id !== "string") {
-        res.status(400).json({ error: "Both a and b must be strings" });
+        res.status(400).json({ error: "id must be a string" });
     }
     const result = (0, product_service_1.getProductidadress)(id);
     res.json({ result });
