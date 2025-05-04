@@ -8,7 +8,7 @@ import {
 
 // Tu URL RPC de Avalanche
 const rpcUrl =
-  "https://scaling-space-goggles-7v7776x5vj4j2x7rw-39719.app.github.dev/ext/bc/2HbaAyQ3bpFiaE35RyChQo6maehMxMFGooTb7rbMeyKFJySsZc/rpc";
+  "http://127.0.0.1:38467/ext/bc/26PKhqDYM8ZUUJVsP9WPxmvp4hBueukjiVaZJdm7tcbqkcosFf/rpc";
 const web3 = new Web3(rpcUrl);
 
 web3.eth
