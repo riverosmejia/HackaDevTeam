@@ -16,11 +16,13 @@
   "dependencies": {
     "axios": "^1.9.0",
     "express": "^5.1.0",
-    "fastify": "^5.3.2"
+    "fastify": "^5.3.2",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.3",
+    "@types/qrcode": "^1.5.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }

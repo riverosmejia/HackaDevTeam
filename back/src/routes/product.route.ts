@@ -1,3 +1,4 @@
+// src/routes/product.route.ts
 import { Router } from "express";
 import {
   registerProduct,
@@ -6,10 +7,7 @@ import {
 
 const router = Router();
 
-// Ruta para registrar un producto (POST)
 router.post("/products/register", registerProduct);
-
-// Ruta para obtener productos (GET)
 router.get("/products/get", getProducts);
 
 export default router;

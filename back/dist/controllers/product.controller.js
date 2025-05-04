@@ -1,10 +1,38 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProducts = exports.registerProduct = void 0;
 const product_service_1 = require("../services/product.service");
+const qrcode_1 = __importDefault(require("qrcode")); // Importamos la librería para generar el QR
 const registerProduct = (req, res) => {
-    const all = (0, product_service_1.getAllProducts)();
-    res.json(all);
+    // Recibimos los datos en formato JSON
+    const { name, type, description, location } = req.body;
+    // Verificamos que los datos sean correctos
+    if (!name ||
+        !type ||
+        !description ||
+        !location ||
+        typeof location !== "string") {
+        res
+            .status(400)
+            .json({ message: "Nombre, tipo, descripción y ubicación requeridos." });
+    }
+    // Imprimimos la información recibida en la consola
+    console.log("Producto recibido:", { name, type, description, location });
+    // Creamos el producto (esto puede ser cualquier lógica que tengas en tu servicio)
+    const product = (0, product_service_1.createProduct)(name, type, description, location);
+    // Creamos la cadena con los datos del producto para generar el QR
+    const productData = `Nombre: ${name}\nTipo: ${type}\nDescripción: ${description}\nUbicación: ${location}`;
+    // Generamos el código QR con los datos del producto
+    qrcode_1.default.toDataURL(productData, (err, url) => {
+        if (err) {
+            res.status(500).json({ message: "Error generando el QR", error: err });
+        }
+        // Respondemos con el producto creado y el código QR generado
+        res.status(201).json({ product, qrCode: url });
+    });
 };
 exports.registerProduct = registerProduct;
 const getProducts = (req, res) => {
