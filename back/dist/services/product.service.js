@@ -24,7 +24,7 @@ const createProduct = (name, category, description, location) => {
                 reject({ message: "Error generando el QR", error: err });
             }
             // Respondemos con el producto y el QR generado
-            resolve({ qrCode: url });
+            resolve({ qrCode: "http://localhost:5173/read/" + url });
         });
     });
     products.push(newProduct); // 👉 Se agrega a la lista

@@ -40,7 +40,7 @@ export const createProduct = (
         reject({ message: "Error generando el QR", error: err });
       }
       // Respondemos con el producto y el QR generado
-      resolve({ qrCode: url });
+      resolve({ qrCode: "http://localhost:5173/read/" + url });
     });
   });
 
