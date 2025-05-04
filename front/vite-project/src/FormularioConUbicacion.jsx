@@ -8,6 +8,7 @@ function FormularioConUbicacion() {
   const [ubicacionLink, setUbicacionLink] = useState('');
   const [errorUbicacion, setErrorUbicacion] = useState(null);
   const [cargandoUbicacion, setCargandoUbicacion] = useState(false);
+  const [imagen, setImagen] = useState(null)
 
   useEffect(() => {
     setCargandoUbicacion(true);
@@ -50,6 +51,19 @@ function FormularioConUbicacion() {
     })
     .then(function (response) {
       console.log(response);
+      // Aquí puedes acceder a los datos de la respuesta del backend
+      console.log('Respuesta del backend:', response.data);
+      // Por ejemplo, si la respuesta contiene un mensaje de éxito:
+      if (response.data) {
+        const url = response.data.qrCode; /// ojo esto es un nombre dentro de la variable
+        const base64Index = url.indexOf('data:image/');
+        const imagenBase64 = base64Index !== -1 ? url.slice(base64Index) : '';
+
+        setImagen(imagenBase64);
+      } else {
+        alert('Error al enviar el formulario: ' + response.data);
+      }
+      // Si necesitas guardar la respuesta en el estado
     })
     .catch(function (error) {
       console.log(error);
@@ -117,6 +131,15 @@ function FormularioConUbicacion() {
   };
 
   return (
+    <>
+
+{imagen && (
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <h3>QR Code:</h3>
+        <img src={imagen} alt="QR Code" style={{ maxWidth: '100%', height: 'auto' }} />
+      </div>
+    )}
+
     <form onSubmit={handleSubmit} style={formStyle}>
       <div style={divStyle}>
         <label htmlFor="nombre" style={labelStyle}>
@@ -172,6 +195,14 @@ function FormularioConUbicacion() {
         Guardar
       </button>
     </form>
+
+    {imagen && (
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <h3>Se muestra un qr arriba del formulario</h3>
+      </div>
+    )}
+
+    </>
   );
 }
 
