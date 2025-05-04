@@ -6,6 +6,7 @@ interface Product {
   category: string;
   description: string;
   location: string;
+  hash: string;
 }
 
 interface prototype {
@@ -22,31 +23,34 @@ export const createProduct = (
   name: string,
   category: string,
   description: string,
-  location: string
+  location: string,
+  hash: string
 ) => {
   const newProduct: Product = {
     name,
     category,
     description,
     location,
+    hash,
   };
 
-  //aquí debemos llamar a Soldility con Avalanche
+  products.push(newProduct); // Se agrega a la lista ANTES del return
 
-  let idcript = encryptId("1"); //por ejemplo mientras
+  // Si aún necesitas encriptar, podrías usar algo como:
+  // const idcript = encryptId(JSON.stringify(newProduct));
+  const productString = JSON.stringify(newProduct);
+
   return new Promise((resolve, reject) => {
-    QRCode.toDataURL(idcript, (err, url) => {
+    QRCode.toDataURL(productString, (err, url) => {
       if (err) {
         reject({ message: "Error generando el QR", error: err });
       }
       // Respondemos con el producto y el QR generado
-      resolve({ qrCode: "http://localhost:5173/read/" + url });
+      resolve({
+        qrImage: url, // esto es el base64 para mostrarlo si lo deseas
+      });
     });
   });
-
-  products.push(newProduct); // 👉 Se agrega a la lista
-
-  return newProduct;
 };
 
 export const getAllProducts = (): Product[] => products;
